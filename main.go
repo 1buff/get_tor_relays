@@ -33,17 +33,15 @@ func get_bridges_and_check() {
 
 	json.Unmarshal(body.Bytes(), &response)
 
-	f, err := os.Create("tor.conf")
-
 	go func() {
 		for i := 0; ; i++ {
 			select {
 			case working_bridge := <-bridges_chan:
 				if i >= 5 {
 					for _, j := range working_bridges {
-						f.WriteString(fmt.Sprintf("%s\n", j))
+						fmt.Println(j)
 					}
-					f.WriteString("UseBridges 1")
+					fmt.Println("UseBridges 1")
 					os.Exit(0)
 				}
 				working_bridges = append(working_bridges, working_bridge)
