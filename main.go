@@ -13,7 +13,6 @@ import (
 )
 
 func check_bridge(bridge, fingerprint string, bridge_chan chan string) {
-	// fmt.Printf("Checking %s\n", bridge)
 	conn, err := net.DialTimeout("tcp", bridge, 500*time.Millisecond)
 	if err == nil {
 		bridge_chan <- fmt.Sprintf("Bridge %s %s", bridge, fingerprint)
@@ -34,15 +33,17 @@ func get_bridges_and_check() {
 
 	json.Unmarshal(body.Bytes(), &response)
 
+	f, err := os.Create("tor.conf")
+
 	go func() {
 		for i := 0; ; i++ {
 			select {
 			case working_bridge := <-bridges_chan:
 				if i >= 5 {
 					for _, j := range working_bridges {
-						fmt.Println(j)
+						f.WriteString(fmt.Sprintf("%s\n", j))
 					}
-					fmt.Println("UseBridges 1")
+					f.WriteString("UseBridges 1")
 					os.Exit(0)
 				}
 				working_bridges = append(working_bridges, working_bridge)
